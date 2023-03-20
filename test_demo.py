@@ -36,6 +36,12 @@ def select_model(args, device):
         # model_path = os.path.join('model_zoo', 'team00_cat.pth')
         # model = CAT()
         # model.load_state_dict(torch.load(model_path), strict=True)
+    elif model_id == 7:
+        from models.team07_ART import ART
+        name, data_range = f"{model_id:02}_ART", 1.0
+        model_path = os.path.join('model_zoo', 'team07_art.pth')
+        model = ART()
+        model.load_state_dict(torch.load(model_path)['params'], strict=True)
     else:
         raise NotImplementedError(f"Model {model_id} is not implemented.")
 
@@ -79,7 +85,7 @@ def select_dataset(data_dir, mode):
 def forward(img_lq, model, tile=None, tile_overlap=32, scale=4):
     if tile is None:
         # test the image as a whole
-        output = model(img_lq)
+        output = model.test_forward(img_lq)
     else:
         # test the image tile by tile
         b, c, h, w = img_lq.size()
@@ -129,7 +135,7 @@ def run(model, model_name, data_range, tile, logger, device, args, mode="test"):
     end = torch.cuda.Event(enable_timing=True)
 
     for i, (img_lr, img_hr) in enumerate(data_path):
-
+        
         # --------------------------------
         # (1) img_lr
         # --------------------------------
@@ -218,7 +224,7 @@ def main(args):
     # --------------------------------
     model, model_name, data_range, tile = select_model(args, device)
     logger.info(model_name)
-
+    
     # if model not in results:
     if True:
         # --------------------------------
